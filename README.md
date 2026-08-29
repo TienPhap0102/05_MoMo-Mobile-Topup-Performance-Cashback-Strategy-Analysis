@@ -326,7 +326,7 @@ flowchart TB
     DD[dw.dim_date] --> FT[dw.fact_transaction]
     DU[dw.dim_user] --> FT
     DM[dw.dim_merchant] --> FT
-    SP[dw.vw_cashback_scenario_compare] -.-> FT
+    SP[dw.vw_cashback_scenario_compare] -.-> DM[dw.dim_merchant]
 ```
 
 Key modelling principles:
@@ -374,9 +374,9 @@ SELECT
         SUM(revenue) AS Total_commission_revenue
 FROM dw.fact_topup_transaction;
 ```
- Total_orders | Total_customers | Total_GMV | AOV | Total_commission_revenue |
+ Total orders | Total customers | Total GMV | AOV | Total commission revenue |
 |---|---|---|---|---|
- 13496 | 13391 | 696604234 | 51615 | 18752727 |
+ 13.496 | 13.391 | 696.604.234 | 51.615 | 18.752.727 |
 
 ### Requirement 1 — What was the gross revenue in January 2020?
 
