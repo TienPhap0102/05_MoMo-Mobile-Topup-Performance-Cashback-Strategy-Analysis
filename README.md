@@ -502,7 +502,7 @@ The report contains five pages that follow a decision-oriented analytical flow.
 
 Explains the business problem, analytical objectives, headline findings, and recommended strategic direction.
 
-![Introduction Page](<img width="1544" height="882" alt="image" src="https://github.com/user-attachments/assets/6c0ec156-7c7a-4177-b1f6-ebaf1f032342" />)
+<img width="1544" height="882" alt="image" src="https://github.com/user-attachments/assets/6c0ec156-7c7a-4177-b1f6-ebaf1f032342" />
 
 ### 📊 2. Business Overview
 
@@ -515,7 +515,8 @@ Main components:
 - Self-use versus purchase-for-others behaviour.
 - AOV, Gross ARPU, and Purchase Frequency.
 
-![Business Overview](assets/images/02-business-overview.png)
+<img width="1706" height="972" alt="image" src="https://github.com/user-attachments/assets/102be754-55d5-40d9-8f2b-61d87030c1ae" />
+
 
 ### 🏪 3. Merchant Performance
 
@@ -529,7 +530,8 @@ Main components:
 - Customer value map using active users and AOV.
 - Merchant operating table.
 
-![Merchant Performance](assets/images/03-merchant-performance.png)
+<img width="1400" height="954" alt="image" src="https://github.com/user-attachments/assets/8df0af06-ef89-48fa-8290-f694b52e5dbb" />
+
 
 ### 👥 4. Customer Insight
 
@@ -542,7 +544,8 @@ Main components:
 - Performance by gender, location, and age group.
 - Demographic and RFM segmentation views.
 
-![Customer Insight](assets/images/04-customer-insight.png)
+<img width="1424" height="910" alt="image" src="https://github.com/user-attachments/assets/52edb1cb-2225-4b4a-8ea8-27976f88a19f" />
+
 
 ### 🎚️ 5. Cashback Scenario
 
@@ -557,7 +560,8 @@ Main components:
 - Contribution sensitivity analysis.
 - Dynamic decision guidance and scenario details.
 
-![Cashback Scenario](assets/images/05-cashback-scenario.png)
+<img width="1408" height="1032" alt="image" src="https://github.com/user-attachments/assets/b39cddc4-6956-4949-956c-99c934f310ea" />
+
 
 ---
 
@@ -679,22 +683,19 @@ MoMo-Mobile-Topup-Analysis/
 │   └── data-dictionary.xlsx
 │
 ├── sql/
-│   ├── 01-create-schemas.sql
-│   ├── 02-load-raw-data.sql
-│   ├── 03-build-staging-layer.sql
-│   ├── 04-build-dim-date.sql
-│   ├── 05-build-data-warehouse.sql
-│   ├── 06-descriptive-analysis.sql
-│   ├── 07-business-overview.sql
-│   ├── 08-merchant-performance.sql
-│   ├── 09-customer-insight.sql
-│   └── 10-cashback-scenario.sql
+│   ├── 01_Create datebase & raw.sql
+│   ├── 02_staging schema & cleaning.sql
+│   ├── 03_dw schema.sql
+│   ├── 04_Key performance metrics.sql
+│   ├── 05_Customer performance.sql
+│   ├── 06_transaction behavior.sql
+│   ├── 07_cashback.sql
 │
 ├── power-bi/
-│   └── momo-mobile-topup-analysis.pbix
+│   └── Pham Tien Phap_Topup Analysis.pbix
 │
 ├── documentation/
-│   └── MoMo_Mobile_Topup_Analysis_Documentation.docx
+│   └── Mobile_Topup_Analysis_Documentation.docx
 │
 └── assets/
     ├── icons/
@@ -721,15 +722,12 @@ Rename the folders and files above if the repository uses different names, then 
 
 ---
 
-## 👤 Author
+## 👤 Presenter
+**[Tien Phap]** 
 
-**[Your Name]**  
-Data Analyst  
+**Project Completion Date:** 04/2026
 
-- LinkedIn: [Add your LinkedIn URL](https://www.linkedin.com/)
-- Portfolio: [Add your portfolio URL](https://github.com/)
-- Email: `your.email@example.com`
+- LinkedIn: [Phap Pham Tien](https://www.linkedin.com/in/phap-pham-tien-3a1a57268/) 
+- Portfolio: [Tien Phap](https://github.com/TienPhap0102?tab=repositories) 
+- Email: `tienphap0102@gmail.com`
 
----
-
-If you found this project useful, consider giving the repository a star.
