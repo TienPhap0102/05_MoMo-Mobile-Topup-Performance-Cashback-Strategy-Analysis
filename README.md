@@ -311,7 +311,7 @@ FROM date_calculation
 OPTION (MAXRECURSION 0)
 ```
 
-`day_of_week_number` is calculated independently of the SQL Server `DATEFIRST` setting, with Monday represented by 1 and Sunday by 7.
+`day_of_week_number` is calculated independently of the SQL Server `DATEFIRST` setting, with Monday represented by 2 and Sunday by 1.
 
 Power BI connects to the `dw` schema rather than the raw or staging layers. This keeps report logic consistent and prevents data-cleaning rules from being duplicated in Power Query or DAX.
 
