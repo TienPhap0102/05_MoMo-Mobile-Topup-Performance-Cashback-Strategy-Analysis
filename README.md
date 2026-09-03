@@ -858,7 +858,7 @@ Extract the `.rar` archives locally before reviewing the SQL scripts, datasets, 
 ## 👤 Author
 **[Tien Phap]** 
 
-**Project Completion Date:** 04/2026
+**Project Completion Date:** 08/2026
 
 - LinkedIn: [Phap Pham Tien](https://www.linkedin.com/in/phap-pham-tien-3a1a57268/) 
 - Portfolio: [Tien Phap](https://github.com/TienPhap0102?tab=repositories) 
