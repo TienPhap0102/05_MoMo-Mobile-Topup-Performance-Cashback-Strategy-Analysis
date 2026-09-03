@@ -20,7 +20,7 @@ An end-to-end analytics project built with **SQL Server** and **Power BI** to ev
 - [Core KPI Definitions](#core-kpi-definitions)
 - [Descriptive Analysis](#descriptive-analysis)
 - [Power BI Report](#power-bi-report)
-- [Key Findings](#key-findings)
+- [Diagnostic Insights](#diagnostic-insights)
 - [Recommendations](#recommendations)
 - [Cashback Experiment Framework](#cashback-experiment-framework)
 - [Repository Structure](#repository-structure)
@@ -565,59 +565,188 @@ Main components:
 
 ---
 
-## 💡 Key Findings
+## 💡 Diagnostic Insights
 
-### 📈 Business performance
+The descriptive analysis establishes **what happened**. This section explains **why it happened** using metric decomposition and separates confirmed drivers from hypotheses that require additional data or experimentation.
 
-- Total GMV reached **696.60M VND**.
-- Gross Revenue reached **18.75M VND**.
-- Current Contribution reached **11.79M VND**.
-- September was the peak month, generating **65.4M VND in GMV** and the highest monthly AOV of approximately **55K VND**.
-- Purchase Frequency remained close to **1.01 order per active user**, showing limited repeat usage.
+### 🔬 Diagnostic framework
 
-### 🛒 Purchase behaviour
+- **GMV = Orders × AOV**
+- **Gross Revenue = GMV × Commission Rate**
+- **Contribution = Gross Revenue − Cashback Cost**
+- **Purchase Frequency = Orders ÷ Active Users**
+- **New-user Rate = New Users ÷ Active Users**
 
-- Purchase-for-others transactions represented only **16.6% of orders** but generated **36.4% of GMV**.
-- Purchase-for-others AOV was approximately **113.39K VND**, compared with **39.36K VND** for self-use transactions.
-- This behaviour represents a high-value growth opportunity despite its lower transaction volume.
+A driver is labelled as confirmed only when it is directly supported by the available transaction, customer, merchant, or scenario data. Campaign, channel, seasonality, and behavioural explanations are treated as hypotheses unless a control group or additional source data is available.
 
-### 🏪 Merchant performance
+### 📈 Insight 1 — September's peak was partly value-led
 
-| Merchant | GMV | GMV share | Commission | Revenue | Contribution |
-|---|---:|---:|---:|---:|---:|
-| Viettel | 359.62M | 51.62% | 2% | 7.19M | 3.60M |
-| Mobifone | 191.90M | 27.55% | 3% | 5.76M | 3.84M |
-| Vinaphone | 123.32M | 17.70% | 4% | 4.93M | 3.70M |
-| Vietnamobile | 21.68M | 3.11% | 4% | 0.87M | 0.65M |
+**What happened**
 
-- Viettel generated **51.6% of GMV** but only **38.4% of gross revenue** because its commission rate was limited to 2%.
-- Mobifone generated the highest current contribution at approximately **3.84M VND**.
-- Vinaphone generated **26.3% of gross revenue from 17.7% of GMV**, demonstrating strong monetisation efficiency.
+September recorded the highest monthly GMV at **65.4M VND** and the highest monthly AOV at approximately **55K VND**.
 
-### 👥 Customer insight
+**Why it happened**
 
-- The new-user rate declined from **10.29% in March to 6.16% in December**.
-- March recorded approximately **113 new users**, compared with only **76 in December**.
-- Customers aged **23–27** generated the highest total revenue and provided scale.
-- Customers aged **over 37** recorded the highest Gross ARPU and provided higher individual value.
-- Other Cities generated approximately **9.5M VND in revenue**, ahead of Ho Chi Minh City and Ha Noi.
+The record AOV confirms that higher transaction value contributed to the GMV peak. However, the current evidence does not fully attribute the increase among order volume, active users, merchant mix, purchase type, or campaign activity.
 
-### 💰 Cashback scenario
+**Business implication**
 
-| Metric | Result |
-|---|---:|
-| Current Contribution | 11.79M VND |
-| Proposed Contribution at 0% uplift | 2.41M VND |
-| Contribution Gap | -9.38M VND |
-| Contribution Reduction | 79.5% |
-| Required Portfolio GMV Lift | Approximately 389% |
+September's result cannot be treated as proof of stronger retention or campaign effectiveness. Part of the growth came from customers spending more per order.
 
-- The proposed policy would reduce contribution by **79.5%** if it produced no incremental GMV.
-- The portfolio would require approximately **389% GMV uplift** to preserve current contribution.
-- Viettel has no finite break-even point because its proposed 2% cashback rate equals its 2% commission rate.
-- Mobifone requires approximately **300% uplift**.
-- Vinaphone and Vietnamobile each require approximately **200% uplift**.
-- At an assumed **310% uplift**, scenario contribution remains approximately **16.2% below** current contribution.
+**Recommended action**
+
+Decompose September GMV by orders, active users, merchant, purchase type, and AOV. Add campaign exposure data before deciding which growth lever can be replicated.
+
+### 🛒 Insight 2 — Purchase-for-others creates value through basket size
+
+**What happened**
+
+Purchase-for-others represented only **16.6% of orders** but generated **36.4% of GMV**.
+
+**Why it happened**
+
+Its AOV was approximately **113.39K VND**, compared with **39.36K VND** for self-use transactions—about **2.9 times higher**.
+
+**Business implication**
+
+This use case creates disproportionate value through transaction size rather than transaction volume.
+
+**Recommended action**
+
+Test family Topup, gifting, and reminder-based propositions for purchase-for-others users. Evaluate incremental contribution rather than GMV alone.
+
+### 🔁 Insight 3 — Growth is constrained by limited repeat usage
+
+**What happened**
+
+Purchase Frequency was approximately **1.01 orders per active user**. The portfolio recorded **13,496 orders** from **13,391 active users**.
+
+**Why it happened**
+
+Orders only slightly exceeded the number of active users, confirming that repeat transaction volume was limited at portfolio level. A user-level frequency distribution is still required to calculate the exact proportion of one-time users.
+
+**Business implication**
+
+Increasing repeat behaviour is likely a more important growth opportunity than relying only on new-user acquisition.
+
+**Recommended action**
+
+Track second-purchase conversion within 30 days, build a second-Topup journey, and analyse repeat rate by merchant, acquisition cohort, and purchase type.
+
+### 🏪 Insight 4 — Merchant economics explain the gap between scale and value
+
+| Merchant | What happened | Confirmed driver | Business implication | Recommended action |
+|---|---|---|---|---|
+| **Viettel** | Generated **51.6% of GMV** but only **38.4% of gross revenue** | Its **2% commission rate** was the lowest in the portfolio | GMV share overstates Viettel's financial value | Use Viettel selectively for reach; reduce cashback or secure merchant co-funding |
+| **Mobifone** | Produced the highest current contribution at approximately **3.84M VND** from **27.6% of GMV** | A 3% commission and 1% current cashback retained an effective contribution margin of about **2%** | Stronger unit economics allowed a smaller merchant to create more contribution | Protect current contribution and run capped retention or frequency tests |
+| **Vinaphone** | Generated **26.3% of gross revenue** from only **17.7% of GMV** | Its **4% commission rate** generated more revenue per unit of GMV | Vinaphone offers strong monetisation potential if volume grows efficiently | Test targeted growth while monitoring incremental contribution |
+| **Vietnamobile** | Contributed approximately **0.65M VND** | Strong rates were applied to a small GMV base | Even a successful test would have limited portfolio impact | Keep experiments small and prioritise learning efficiency |
+
+### 👥 Insight 5 — Acquisition weakened, but the root cause is not observable
+
+**What happened**
+
+The new-user rate declined from **10.29% in March to 6.16% in December**, while new users fell from approximately **113 to 76**.
+
+**Why it happened**
+
+The available data confirms that new-user acquisition did not keep pace with the active-user base. It does **not** identify whether the decline was caused by campaign spend, channel performance, seasonality, competition, or targeting quality.
+
+**Business implication**
+
+The portfolio became more dependent on current users, while a low purchase frequency limited the ability of that base to generate recurring growth.
+
+**Recommended action**
+
+Add acquisition channel, campaign exposure, incentive cost, and cohort data. Diagnose conversion and retention separately before reallocating acquisition budget.
+
+### 🎯 Insight 6 — Customer scale and customer value come from different age groups
+
+**What happened**
+
+Customers aged **23–27** formed the largest group and generated the highest total revenue, while customers aged **over 37** recorded the highest Gross ARPU.
+
+**Why it happened**
+
+The 23–27 segment led through customer-base scale, whereas the over-37 segment generated more revenue per individual user.
+
+**Business implication**
+
+The largest customer segment is not automatically the most valuable on a per-user basis, so one offer should not be applied to both groups.
+
+**Recommended action**
+
+Use frequency and retention propositions for ages 23–27, and test higher-value, convenience-focused offers for customers over 37.
+
+### 🌍 Insight 7 — Location and gender totals require further decomposition
+
+Other Cities generated approximately **9.5M VND in revenue**, and male users generated more total commission than female users. These totals show **where** value was recorded, but not **why** the difference exists.
+
+The next diagnostic step is:
+
+> **Segment Revenue = Active Users × Purchase Frequency × AOV × Effective Commission Rate**
+
+This decomposition will show whether each gap is explained by customer-base size, repeat behaviour, transaction value, or merchant mix. Gender or location should not be treated as a causal driver without this analysis.
+
+### 💰 Insight 8 — Proposed cashback destroys contribution through margin compression
+
+**What happened**
+
+At **0% GMV uplift**, proposed contribution falls from **11.79M VND to 2.41M VND**, a decline of approximately **79.5%**.
+
+**Why it happened**
+
+The proposed cashback rates reduce the contribution retained from every unit of GMV. The portfolio must therefore generate much more volume merely to recover the margin sacrificed on existing transactions.
+
+**Business implication**
+
+A campaign may increase GMV while still destroying financial value. GMV uplift alone is not a sufficient success criterion.
+
+**Recommended action**
+
+Use **Incremental Contribution** as the primary KPI, set campaign budget caps and stop-loss rules, and evaluate results by merchant.
+
+### 🚫 Insight 9 — Viettel has no finite break-even point
+
+**What happened**
+
+Viettel cannot recover its current contribution under the proposed cashback rate, regardless of GMV uplift.
+
+**Why it happened**
+
+> **2% Commission − 2% Proposed Cashback = 0% Contribution Rate**
+
+Every additional Viettel transaction would generate zero contribution, so higher GMV cannot recover the margin lost on the existing base.
+
+**Business implication**
+
+The proposed Viettel offer is structurally unprofitable, not merely difficult to scale.
+
+**Recommended action**
+
+Reject the current configuration unless the cashback rate is reduced below commission or Viettel provides co-funding.
+
+### ⚖️ Insight 10 — Portfolio break-even is extremely high because of merchant mix
+
+**What happened**
+
+The portfolio requires approximately **389% GMV uplift** to preserve current contribution. Even at an assumed **310% uplift**, scenario contribution remains approximately **16.2% below** the current level.
+
+**Why it happened**
+
+More than half of current GMV comes from Viettel, which would retain zero contribution under the proposed policy. The remaining merchants must compensate for both their own margin compression and Viettel's lost contribution. A 310% uplift also remains below the calculated 389% break-even threshold.
+
+**Business implication**
+
+A blanket cashback policy transfers too much value to customers relative to the commission economics of the merchant portfolio.
+
+**Recommended action**
+
+Replace the blanket rollout with merchant-specific, capped A/B tests. Scale only when measured incremental contribution is positive and post-campaign repeat behaviour persists.
+
+### 🧭 Central business conclusion
+
+> **Topup growth is constrained by limited repeat usage, while financial performance is shaped by merchant commission differences. Blanket cashback would amplify volume at the expense of contribution because the proposed rates significantly compress—or completely eliminate—merchant-level margins.**
 
 ---
 
