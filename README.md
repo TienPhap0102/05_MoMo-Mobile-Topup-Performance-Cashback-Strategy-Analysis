@@ -10,22 +10,22 @@ An end-to-end analytics project built with **SQL Server** and **Power BI** to ev
 
 ## Table of Contents
 
-- [Business Context](#business-context)
-- [Business Objectives](#business-objectives)
-- [Business Requirements](#business-requirements)
-- [Data Scope](#data-scope)
-- [Analytical Approach](#analytical-approach)
-- [Data Processing with SQL](#data-processing-with-sql)
-- [Data Model](#data-model)
-- [Core KPI Definitions](#core-kpi-definitions)
-- [Descriptive Analysis](#descriptive-analysis)
-- [Power BI Report](#power-bi-report)
-- [Diagnostic Insights](#diagnostic-insights)
-- [Recommendations](#recommendations)
-- [Cashback Experiment Framework](#cashback-experiment-framework)
-- [Repository Structure](#repository-structure)
-- [Limitations](#limitations)
-- [Author](#author)
+- [Business Context](#-business-context)
+- [Business Objectives](#-business-objectives)
+- [Business Requirements](#-business-requirements)
+- [Data Scope](#-data-scope)
+- [Analytical Approach](#-analytical-approach)
+- [Data Processing with SQL](#-data-processing-with-sql)
+- [Data Model](#-data-model)
+- [Core KPI Definitions](#-core-kpi-definitions)
+- [Descriptive Analysis](#-descriptive-analysis)
+- [Power BI Report](#-power-bi-report)
+- [Diagnostic Insights](#-diagnostic-insights)
+- [Recommendations](#-recommendations)
+- [Cashback Experiment Framework](#-cashback-experiment-framework)
+- [Repository Structure](#-repository-structure)
+- [Limitations](#-limitations)
+- [Author](#-author)
 
 ---
 
@@ -128,18 +128,22 @@ This design separates ingestion, transformation, and reporting logic. Raw data r
 ### Creating the three SQL schemas
 
 ```sql
---- 1. CREATE DATABASE 
-CREATE DATABASE DB_MoMo_Topup 
-;
---- 2. CREATE SCHEMA RAW 
-CREATE SCHEMA raw
-;
---- 2. CREATE SCHEMA STAGING 
-CREATE SCHEMA stg
-;
---- 2. CREATE SCHEMA DATA WAREHOUSE
-CREATE SCHEMA dw
-;
+-- 1. Create the project database
+CREATE DATABASE DB_MoMo_Topup;
+GO
+
+USE DB_MoMo_Topup;
+GO
+
+-- 2. Create the three data-layer schemas
+CREATE SCHEMA raw;
+GO
+
+CREATE SCHEMA stg;
+GO
+
+CREATE SCHEMA dw;
+GO
 ```
 
 ### Layer 1 — Raw data
@@ -181,8 +185,8 @@ The staging layer converts raw source values into clean and consistent business 
 | `month_year` | User-friendly reporting label |
 | `standardised_location` | Consistent geographic grouping |
 | `standardised_gender` | Consistent demographic analysis |
-| `customer_status` | Separation of new and current users |
-| `purchase_status` | Separation of self-use and purchase-for-others transactions |
+| `user_type` | Separation of new and current users |
+| `purchase_type` | Separation of self-use and purchase-for-others transactions |
 | `age_group` | Demographic comparison by age band |
 | `gross_revenue` | Transaction value multiplied by merchant commission rate |
 | `current_contribution` | Gross revenue after current cashback cost |
@@ -191,7 +195,7 @@ The staging layer converts raw source values into clean and consistent business 
 
 The staging layer produces clean, reusable datasets such as:
 
-- `stg.transaction`
+- `stg.topup_transaction`
 - `stg.user_info`
 - `stg.merchant`
 
@@ -206,7 +210,7 @@ The Data Warehouse applies a star schema optimised for analysis. Dimensions prov
 | `dw.dim_date` | One row per calendar date | Time intelligence and consistent date filtering |
 | `dw.dim_user` | One row per user | Demographics, location, acquisition, and customer status |
 | `dw.dim_merchant` | One row per merchant | Merchant name, commission rate, and commercial attributes |
-| `dw.fact_transaction` | One row per completed transaction | Orders, GMV, revenue, cashback cost, and contribution |
+| `dw.fact_topup_transaction` | One row per completed transaction | Orders, GMV, revenue, cashback cost, and contribution |
 
 #### Creating `dw.dim_date`
 
@@ -237,7 +241,7 @@ DECLARE @end_date DATE;
 SELECT
     @start_date = MIN(transaction_date),
     @end_date   = MAX(transaction_date)
-FROM staging.topup_transaction;
+FROM stg.topup_transaction;
 ;WITH date_series AS
 (
     SELECT @start_date AS full_date
@@ -250,7 +254,7 @@ date_calculation AS
 (
     SELECT
         full_date,
-        CAST(DATEDIFF(DAY, '19000107', full_date) % 7 + 1  AS TINYINT) AS weekday_number
+        CAST(DATEDIFF(DAY, '19000101', full_date) % 7 + 1 AS TINYINT) AS weekday_number
     FROM date_series
 )
 INSERT INTO dw.dim_date
@@ -274,13 +278,13 @@ SELECT
     weekday_number,
     CHOOSE(
         weekday_number,
-        N'Sunday',
         N'Monday',
         N'Tuesday',
         N'Wednesday',
         N'Thursday',
         N'Friday',
-        N'Saturday'
+        N'Saturday',
+        N'Sunday'
     ),
     MONTH(full_date),
     CHOOSE(
@@ -304,14 +308,14 @@ SELECT
     CONVERT(CHAR(7), full_date, 126),
     YEAR(full_date) * 100 + MONTH(full_date),
     CASE
-        WHEN weekday_number IN (1, 7) THEN 1
+        WHEN weekday_number IN (6, 7) THEN 1
         ELSE 0
     END
 FROM date_calculation
 OPTION (MAXRECURSION 0)
 ```
 
-`day_of_week_number` is calculated independently of the SQL Server `DATEFIRST` setting, with Monday represented by 2 and Sunday by 1.
+`weekday_number` is calculated independently of the SQL Server `DATEFIRST` setting, with Monday represented by 1 and Sunday by 7.
 
 Power BI connects to the `dw` schema rather than the raw or staging layers. This keeps report logic consistent and prevents data-cleaning rules from being duplicated in Power Query or DAX.
 
@@ -323,22 +327,21 @@ The Power BI model follows a star-schema approach:
 
 ```mermaid
 flowchart TB
-    DD[dw.dim_date] --> FT[dw.fact_transaction]
+    DD[dw.dim_date] --> FT[dw.fact_topup_transaction]
     DU[dw.dim_user] --> FT
     DM[dw.dim_merchant] --> FT
-    SP[dw.vw_cashback_scenario_compare] -.-> DM[dw.dim_merchant]
+    FT -.-> SP[dw.vw_cashback_scenario_comparison]
 ```
 
 Key modelling principles:
 
-- One-to-many relationships from `dw.dim_date`, `dw.dim_user`, and `dw.dim_merchant` to `dw.fact_transaction`.
-- `dw.dim_date[full_date]` filters transaction activity through the warehouse date key.
-- `month_start_date`, month, quarter, and year fields come from the governed date dimension.
-- Measures used for rates and totals instead of directly aggregating raw rate columns.
-- Disconnected parameter tables used for scenario simulation and sensitivity analysis.
+- One-to-many relationships from `dw.dim_date`, `dw.dim_user`, and `dw.dim_merchant` to `dw.fact_topup_transaction`.
+- `dw.dim_date[full_date]` filters transaction activity through `dw.fact_topup_transaction[transaction_date]`.
+- Month, quarter, year, and weekday attributes come from the governed date dimension.
+- Measures are used for rates and totals instead of directly aggregating raw rate columns.
+- Disconnected parameter tables support scenario simulation and sensitivity analysis.
+- `dw.vw_cashback_scenario_comparison` centralises current-versus-proposed cashback economics.
 - Power BI imports only Data Warehouse objects; Raw and Staging remain outside the semantic model.
-
----
 
 ## 📐 Core KPI Definitions
 
@@ -364,42 +367,52 @@ Key modelling principles:
 
 SQL descriptive analysis was completed before dashboard development to answer the initial business requirements and establish validated benchmark figures.
 
- **OVER PERFORMANCE** 
- ```sql
-SELECT 
-        COUNT(DISTINCT order_id) AS Total_orders,
-        COUNT(DISTINCT user_id) AS Total_customers,
-        SUM(amount) AS Total_GMV,
-        ROUND(SUM(amount) * 1.00 / COUNT(DISTINCT order_id), 2) AS AOV,
-        SUM(revenue) AS Total_commission_revenue
+### Overall performance
+
+```sql
+SELECT
+    COUNT(DISTINCT order_id) AS total_orders,
+    COUNT(DISTINCT user_id) AS active_users,
+    SUM(amount) AS total_gmv,
+    ROUND(
+        SUM(amount) * 1.0 / NULLIF(COUNT(DISTINCT order_id), 0),
+        2
+    ) AS aov,
+    SUM(revenue) AS gross_revenue
 FROM dw.fact_topup_transaction;
 ```
- Total orders | Total customers | Total GMV | AOV | Total commission revenue |
-|---|---|---|---|---|
- 13.496 | 13.391 | 696.604.234 | 51.615 | 18.752.727 |
+
+| Total Orders | Active Users | Total GMV (VND) | AOV (VND) | Gross Revenue (VND) |
+|---:|---:|---:|---:|---:|
+| 13,496 | 13,391 | 696,604,234 | 51,615 | 18,752,727 |
 
 ### Requirement 1 — What was the gross revenue in January 2020?
 
 ```sql
 SELECT
-    SUM(gross_revenue) AS january_gross_revenue
-FROM reporting.vw_topup_performance
+    SUM(revenue) AS january_gross_revenue
+FROM dw.fact_topup_transaction
 WHERE transaction_date >= '2020-01-01'
   AND transaction_date <  '2020-02-01';
 ```
 
 **Answer:** January generated approximately **1,409,827 VND in gross revenue**.
 
-### Requirement 2 — Which month generated the highest business performance?
+### Requirement 2 — Which month generated the highest gross revenue?
 
 ```sql
 SELECT TOP (1)
-    month_start_date,
-    SUM(gmv) AS total_gmv,
-    SUM(gross_revenue) AS gross_revenue
-FROM reporting.vw_topup_performance
-GROUP BY month_start_date
-ORDER BY gross_revenue DESC;
+    d.year_month,
+    SUM(f.amount) AS total_gmv,
+    SUM(f.revenue) AS gross_revenue
+FROM dw.fact_topup_transaction AS f
+INNER JOIN dw.dim_date AS d
+    ON f.transaction_date = d.full_date
+GROUP BY
+    d.year_month,
+    d.year_month_sort
+ORDER BY
+    gross_revenue DESC;
 ```
 
 **Answer:** **September 2020** recorded the highest gross revenue. It also generated **65.4M VND in GMV** and the highest monthly AOV of approximately **55K VND**.
@@ -408,18 +421,21 @@ ORDER BY gross_revenue DESC;
 
 ```sql
 SELECT
-    DATENAME(weekday, transaction_date) AS weekday_name,
-    DATEPART(weekday, transaction_date) AS weekday_number,
-    SUM(gross_revenue) AS gross_revenue,
-    COUNT(DISTINCT transaction_id) AS total_orders
-FROM reporting.vw_topup_performance
+    d.weekday_number,
+    d.weekday_name,
+    SUM(f.revenue) AS gross_revenue,
+    COUNT(DISTINCT f.order_id) AS total_orders
+FROM dw.fact_topup_transaction AS f
+INNER JOIN dw.dim_date AS d
+    ON f.transaction_date = d.full_date
 GROUP BY
-    DATENAME(weekday, transaction_date),
-    DATEPART(weekday, transaction_date)
-ORDER BY weekday_number;
+    d.weekday_number,
+    d.weekday_name
+ORDER BY
+    d.weekday_number;
 ```
 
-This query provides the weekday revenue pattern used to identify operational peaks. The repository should report the final weekday ranking only after validating the server's `DATEFIRST` setting.
+Because weekday attributes come from `dw.dim_date`, the result is consistently ordered from Monday to Sunday and does not depend on the SQL Server `DATEFIRST` setting.
 
 ### Requirement 4 — How many new users were acquired each month?
 
@@ -805,42 +821,28 @@ Incremental Contribution
 ## 📁 Repository Structure
 
 ```text
-MoMo-Mobile-Topup-Analysis/
-│
+05_MoMo-Mobile-Topup-Performance-Cashback-Strategy-Analysis/
 ├── README.md
-│
-├── data/
-│   └── data-dictionary.xlsx
-│   └── Data.xlsx
-│
-├── sql/
-│   ├── 01_Create datebase & raw.sql
-│   ├── 02_staging schema & cleaning.sql
-│   ├── 03_dw schema.sql
-│   ├── 04_Key performance metrics.sql
-│   ├── 05_Customer performance.sql
-│   ├── 06_transaction behavior.sql
-│   ├── 07_cashback.sql
-│
-├── power-bi/
-│   └── Pham Tien Phap_Topup Analysis.pbix
-│
-├── documentation/
-│   └── Topup Analysis Documentation.pdf
-│
-└── assets/
-    ├── icons/
-    └── images/
-        ├── 01-introduction.png
-        ├── 02-business-overview.png
-        ├── 03-merchant-performance.png
-        ├── 04-customer-insight.png
-        └── 05-cashback-scenario.png
+├── Data dictionary.xlsx
+├── data.rar
+├── sql.rar
+├── pbi.rar
+├── Mobile Topup Presentation.pptx
+├── Topup Analysis Documentation.pdf
+└── LICENSE
 ```
 
-Rename the folders and files above if the repository uses different names, then update the links in this README.
+| File | Purpose |
+|---|---|
+| `Data dictionary.xlsx` | Field definitions and source-data documentation |
+| `data.rar` | Packaged source datasets used in the project |
+| `sql.rar` | SQL scripts for the Raw → Staging → Data Warehouse pipeline and analysis |
+| `pbi.rar` | Packaged Power BI report files |
+| `Mobile Topup Presentation.pptx` | Portfolio case-study presentation |
+| `Topup Analysis Documentation.pdf` | Full analytical documentation |
+| `LICENSE` | Repository licence |
 
----
+Extract the `.rar` archives locally before reviewing the SQL scripts, datasets, or Power BI files.
 
 ## ⚠️ Limitations
 
@@ -853,7 +855,7 @@ Rename the folders and files above if the repository uses different names, then 
 
 ---
 
-## 👤 Presenter
+## 👤 Author
 **[Tien Phap]** 
 
 **Project Completion Date:** 04/2026
