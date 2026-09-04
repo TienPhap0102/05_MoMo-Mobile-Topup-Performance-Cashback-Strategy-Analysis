@@ -1,6 +1,6 @@
 # MoMo Mobile Topup Performance & Cashback Strategy Analysis
 
-[View the live Dashboard](https://app.powerbi.com/view?r=eyJrIjoiZmViZTA5YmEtZDI4OC00ZjNlLWIwNzEtN2RmZDBjOWUyNjkyIiwidCI6IjM3MGZiM2I4LTMzMDYtNDg5MC05MDYzLWNjMDhiZTc4ODI1NyIsImMiOjEwfQ%3D%3D) 
+[View the live Dashboard](https://app.powerbi.com/view?r=eyJrIjoiNmRhNDY3NjYtYmVjOC00NWFjLWI5ZWEtZjY5MTA1YWFkMDMwIiwidCI6IjM3MGZiM2I4LTMzMDYtNDg5MC05MDYzLWNjMDhiZTc4ODI1NyIsImMiOjEwfQ%3D%3D) 
 
 An end-to-end analytics project built with **SQL Server** and **Power BI** to evaluate Mobile Topup performance, identify growth drivers across time, merchants, and customer segments, and assess the financial sustainability of a proposed cashback strategy.
 
